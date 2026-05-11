@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: savesmart-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: savesmart
+      POSTGRES_USER: savesmart
+      POSTGRES_PASSWORD: savesmart_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - savesmart_pgdata:/var/lib/postgresql/data
+
+volumes:
+  savesmart_pgdata:
