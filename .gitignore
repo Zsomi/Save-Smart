@@ -1,0 +1,15 @@
+savesmartplan.md
+
+# .NET / F#
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Node
+node_modules/
+
+# WebSharper build output
+build/
+wwwroot/Scripts/WebSharper/
