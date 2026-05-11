@@ -6,10 +6,12 @@
 
   <ItemGroup>
     <Compile Include="src/Shared/Domain.fs" />
-    <Compile Include="Remoting.fs" />
-    <Compile Include="Client.fs" />
-    <Compile Include="Site.fs" />
-    <Compile Include="Startup.fs" />
+    <Compile Include="src/Server/Data/Migrations/M001_InitialSchema.fs" />
+    <Compile Include="src/Server/Data/Database.fs" />
+    <Compile Include="src/Server/Remoting.fs" />
+    <Compile Include="src/Client/Client.fs" />
+    <Compile Include="src/Server/Site.fs" />
+    <Compile Include="src/Server/Startup.fs" />
     <Content Include="Main.html" CopyToPublishDirectory="Always" />
     <None Include="package.json" />
     <None Include="esbuild.config.mjs" />

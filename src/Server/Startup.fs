@@ -5,18 +5,24 @@ open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.DependencyInjection
 open WebSharper.AspNetCore
 open SmartSave
+open SmartSave.Data
 
 [<EntryPoint>]
 let main args =
     let builder = WebApplication.CreateBuilder(args)
-    
+
     // Add services to the container.
     builder.Services.AddWebSharper()
         .AddAuthentication("WebSharper")
         .AddCookie("WebSharper", fun options -> ())
     |> ignore
 
+    Database.addPostgres builder.Configuration builder.Services |> ignore
+    Database.addMigrations builder.Configuration builder.Services |> ignore
+
     let app = builder.Build()
+
+    Database.runMigrations app.Services
 
     // Configure the HTTP request pipeline.
     if not (app.Environment.IsDevelopment()) then
