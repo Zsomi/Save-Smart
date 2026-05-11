@@ -26,6 +26,22 @@ module Domain =
         | Market
         | Other of string
 
+    [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+    module StoreType =
+        let toString =
+            function
+            | Supermarket -> "Supermarket"
+            | ConvenienceStore -> "ConvenienceStore"
+            | Market -> "Market"
+            | Other s -> s
+
+        let parse =
+            function
+            | "Supermarket" -> Supermarket
+            | "ConvenienceStore" -> ConvenienceStore
+            | "Market" -> Market
+            | other -> Other other
+
     type Store = {
         Id: StoreId
         Name: string
@@ -78,6 +94,24 @@ module Domain =
         | LoginBonus
         | PhotoUpload
         | Other of string
+
+    [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+    module GamificationEventType =
+        let toString =
+            function
+            | PriceReport -> "PriceReport"
+            | Verification -> "Verification"
+            | LoginBonus -> "LoginBonus"
+            | PhotoUpload -> "PhotoUpload"
+            | GamificationEventType.Other s -> s
+
+        let parse =
+            function
+            | "PriceReport" -> PriceReport
+            | "Verification" -> Verification
+            | "LoginBonus" -> LoginBonus
+            | "PhotoUpload" -> PhotoUpload
+            | other -> GamificationEventType.Other other
 
     type GamificationEvent = {
         Id: GamificationEventId

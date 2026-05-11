@@ -8,6 +8,11 @@
     <Compile Include="src/Shared/Domain.fs" />
     <Compile Include="src/Server/Data/Migrations/M001_InitialSchema.fs" />
     <Compile Include="src/Server/Data/Database.fs" />
+    <Compile Include="src/Server/Data/Repositories/Users.fs" />
+    <Compile Include="src/Server/Data/Repositories/Stores.fs" />
+    <Compile Include="src/Server/Data/Repositories/Products.fs" />
+    <Compile Include="src/Server/Data/Repositories/PriceEntries.fs" />
+    <Compile Include="src/Server/Data/Smoke.fs" />
     <Compile Include="src/Server/Remoting.fs" />
     <Compile Include="src/Client/Client.fs" />
     <Compile Include="src/Server/Site.fs" />

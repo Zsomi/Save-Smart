@@ -24,6 +24,10 @@ let main args =
 
     Database.runMigrations app.Services
 
+    if args |> Array.contains "--smoke-test" then
+        let factory = app.Services.GetRequiredService<IDbConnectionFactory>()
+        exit ((Smoke.run factory).GetAwaiter().GetResult())
+
     // Configure the HTTP request pipeline.
     if not (app.Environment.IsDevelopment()) then
         app.UseExceptionHandler("/Error")
