@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <Compile Include="src/Shared/Domain.fs" />
+    <Compile Include="src/Shared/Auth.fs" />
     <Compile Include="src/Server/Data/Migrations/M001_InitialSchema.fs" />
     <Compile Include="src/Server/Data/Database.fs" />
     <Compile Include="src/Server/Data/Repositories/Users.fs" />
@@ -13,6 +14,9 @@
     <Compile Include="src/Server/Data/Repositories/Products.fs" />
     <Compile Include="src/Server/Data/Repositories/PriceEntries.fs" />
     <Compile Include="src/Server/Data/Smoke.fs" />
+    <Compile Include="src/Server/Auth/PasswordHasher.fs" />
+    <Compile Include="src/Server/Auth/Service.fs" />
+    <Compile Include="src/Server/ServerServices.fs" />
     <Compile Include="src/Server/Remoting.fs" />
     <Compile Include="src/Client/Client.fs" />
     <Compile Include="src/Server/Site.fs" />
@@ -35,6 +39,7 @@
     <PackageReference Include="FluentMigrator" Version="6.2.0" />
     <PackageReference Include="FluentMigrator.Runner" Version="6.2.0" />
     <PackageReference Include="FluentMigrator.Runner.Postgres" Version="6.2.0" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
   </ItemGroup>
   
   <Target Name="ESBuildBundle" AfterTargets="WebSharperCompile" Condition=" '$(Configuration)' == 'Release' ">

@@ -1,7 +1,9 @@
 namespace SmartSave.Shared
 
 open System
+open WebSharper
 
+[<JavaScript>]
 module Domain =
 
     type UserId = UserId of Guid

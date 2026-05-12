@@ -1,7 +1,7 @@
 open System
 open Microsoft.AspNetCore.Builder
-open Microsoft.Extensions.Hosting
 open Microsoft.AspNetCore.Http
+open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
 open WebSharper.AspNetCore
 open SmartSave
@@ -14,13 +14,24 @@ let main args =
     // Add services to the container.
     builder.Services.AddWebSharper()
         .AddAuthentication("WebSharper")
-        .AddCookie("WebSharper", fun options -> ())
+        .AddCookie("WebSharper", fun options ->
+            options.Cookie.Name <- "SmartSave.Auth"
+            options.Cookie.HttpOnly <- true
+            options.Cookie.SameSite <- SameSiteMode.Lax
+            options.SlidingExpiration <- true
+            options.ExpireTimeSpan <- TimeSpan.FromDays(14.0)
+            options.LoginPath <- PathString("/login")
+            options.LogoutPath <- PathString("/logout"))
     |> ignore
+
+    builder.Services.AddAuthorization() |> ignore
 
     Database.addPostgres builder.Configuration builder.Services |> ignore
     Database.addMigrations builder.Configuration builder.Services |> ignore
 
     let app = builder.Build()
+
+    ServerServices.init app.Services
 
     Database.runMigrations app.Services
 
@@ -40,6 +51,7 @@ let main args =
         .UseWebSharperScriptRedirect(startVite = true)
 #endif
         .UseAuthentication()
+        .UseAuthorization()
         .UseStaticFiles()
         .UseWebSharper(fun ws -> ws.Sitelet(Site.Main) |> ignore)
     |> ignore
