@@ -48,8 +48,16 @@ module Server =
             let! _ =
                 GamificationEvents.insert factory user.Id eventType points
                 |> Async.AwaitTask
-            let! _ =
+            let! total =
                 Users.addPoints factory user.Id points
+                |> Async.AwaitTask
+            let notifs = ServerServices.notifications ()
+            do!
+                notifs.PointsAwarded
+                    { UserId = user.Id
+                      EventType = eventType
+                      Points = points
+                      TotalPoints = total }
                 |> Async.AwaitTask
             return ()
         }
@@ -225,6 +233,16 @@ module Server =
                             | Some url when not (String.IsNullOrWhiteSpace url) -> 5
                             | _ -> 0
                         do! awardPoints user PriceReport (basePoints + photoBonus)
+                        let! product = Products.findById factory req.ProductId |> Async.AwaitTask
+                        let productName =
+                            product |> Option.map (fun p -> p.Name) |> Option.defaultValue ""
+                        let notifs = ServerServices.notifications ()
+                        do!
+                            notifs.PriceReported
+                                { Entry = entry
+                                  ProductName = productName
+                                  StoreId = req.StoreId }
+                            |> Async.AwaitTask
                         return Ok entry
                     with
                     | :? Npgsql.PostgresException as ex when ex.SqlState = "23505" ->
@@ -255,6 +273,13 @@ module Server =
                         do! awardPoints user Verification 2
                     | _ ->
                         do! awardPoints user Verification 2
+                    let notifs = ServerServices.notifications ()
+                    do!
+                        notifs.PriceVerified
+                            { EntryId = id
+                              StoreId = entry.StoreId
+                              Verified = true }
+                        |> Async.AwaitTask
                     let! refreshed = PriceEntries.findById factory id |> Async.AwaitTask
                     return
                         match refreshed with

@@ -21,6 +21,8 @@
     <Compile Include="src/Server/Auth/PasswordHasher.fs" />
     <Compile Include="src/Server/Auth/Service.fs" />
     <Compile Include="src/Server/Optimizer.fs" />
+    <Compile Include="src/Server/Hubs/NotificationsHub.fs" />
+    <Compile Include="src/Server/Notifications.fs" />
     <Compile Include="src/Server/ServerServices.fs" />
     <Compile Include="src/Server/Remoting.fs" />
     <Compile Include="src/Client/Client.fs" />
