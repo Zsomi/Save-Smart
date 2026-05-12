@@ -1,9 +1,8 @@
-﻿namespace SmartSave
+namespace SmartSave
 
 open WebSharper
 open WebSharper.UI
 open WebSharper.UI.Templating
-open WebSharper.UI.Notation
 
 [<JavaScript>]
 module Templates =
@@ -13,15 +12,4 @@ module Templates =
 [<JavaScript>]
 module Client =
 
-    let Main () =
-        let rvReversed = Var.Create ""
-        Templates.MainTemplate.MainForm()
-            .OnSend(fun e ->
-                async {
-                    let! res = Server.DoSomething e.Vars.TextToReverse.Value
-                    rvReversed := res
-                }
-                |> Async.StartImmediate
-            )
-            .Reversed(rvReversed.View)
-            .Doc()
+    let Main () : Doc = Doc.Empty

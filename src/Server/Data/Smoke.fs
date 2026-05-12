@@ -27,12 +27,12 @@ module Smoke =
                 Stores.insert factory
                     $"TestBolt-{suffix}"
                     $"Cím-{suffix}"
-                    47.4979m
-                    19.0402m
+                    47.4979
+                    19.0402
                     (Some Supermarket)
             printfn "store inserted: %A" store
 
-            let! nearby = Stores.findNearby factory 47.5m 19.0m 50m
+            let! nearby = Stores.findNearby factory 47.5 19.0 50.0
             printfn "nearby stores (50km of 47.5/19.0): %d" nearby.Length
 
             let! user =
@@ -54,7 +54,7 @@ module Smoke =
                     { ProductId = product.Id
                       StoreId = store.Id
                       UserId = user.Id
-                      Price = 499.99m
+                      Price = 499.99
                       Unit = Some "kg"
                       IsOnSale = true
                       SaleDescription = Some "2 db vásárlása esetén"

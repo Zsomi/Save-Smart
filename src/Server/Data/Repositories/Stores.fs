@@ -13,8 +13,8 @@ module Stores =
         { Id: Guid
           Name: string
           Address: string
-          Latitude: decimal
-          Longitude: decimal
+          Latitude: float
+          Longitude: float
           Type: string
           CreatedAt: DateTimeOffset }
 
@@ -34,8 +34,8 @@ module Stores =
         (factory: IDbConnectionFactory)
         (name: string)
         (address: string)
-        (latitude: decimal)
-        (longitude: decimal)
+        (latitude: float)
+        (longitude: float)
         (storeType: StoreType option)
         : Task<Store> =
         task {
@@ -77,18 +77,16 @@ module Stores =
             return rows |> Seq.map toDomain |> Seq.toList
         }
 
-    /// Bounding-box prefilter using lat/lon degrees, then exact great-circle ranking.
-    /// Approximation good enough for "stores within N km" — replace with PostGIS if precision matters.
     let findNearby
         (factory: IDbConnectionFactory)
-        (latitude: decimal)
-        (longitude: decimal)
-        (radiusKm: decimal)
+        (latitude: float)
+        (longitude: float)
+        (radiusKm: float)
         : Task<Store list> =
         task {
             use conn = factory.Create()
-            let latDelta = radiusKm / 111.0m
-            let lonDelta = radiusKm / 70.0m
+            let latDelta = radiusKm / 111.0
+            let lonDelta = radiusKm / 70.0
             let sql =
                 $"""
                 SELECT {selectColumns} FROM stores

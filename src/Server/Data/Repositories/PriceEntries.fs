@@ -14,7 +14,7 @@ module PriceEntries =
           ProductId: Guid
           StoreId: Guid
           UserId: Guid
-          Price: decimal
+          Price: float
           Unit: string
           IsOnSale: bool
           SaleDescription: string
@@ -42,7 +42,7 @@ module PriceEntries =
         { ProductId: ProductId
           StoreId: StoreId
           UserId: UserId
-          Price: decimal
+          Price: float
           Unit: string option
           IsOnSale: bool
           SaleDescription: string option

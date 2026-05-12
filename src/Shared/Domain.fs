@@ -48,8 +48,8 @@ module Domain =
         Id: StoreId
         Name: string
         Address: string
-        Latitude: decimal
-        Longitude: decimal
+        Latitude: float
+        Longitude: float
         Type: StoreType option
         CreatedAt: DateTimeOffset
     }
@@ -66,7 +66,7 @@ module Domain =
         ProductId: ProductId
         StoreId: StoreId
         UserId: UserId
-        Price: decimal
+        Price: float
         Unit: string option
         IsOnSale: bool
         SaleDescription: string option
@@ -86,7 +86,7 @@ module Domain =
         Id: ShoppingListItemId
         ShoppingListId: ShoppingListId
         ProductId: ProductId
-        Quantity: decimal
+        Quantity: float
         IsBought: bool
     }
 
