@@ -62,6 +62,16 @@ module Server =
             return ()
         }
 
+    let private awardDailyLoginBonus (user: User) =
+        async {
+            let factory = ServerServices.dbFactory ()
+            let! already =
+                GamificationEvents.hasEventToday factory user.Id LoginBonus
+                |> Async.AwaitTask
+            if not already then
+                do! awardPoints user LoginBonus 5
+        }
+
     [<Rpc>]
     let Register (req: RegisterRequest) : Async<Result<User, AuthError>> =
         async {
@@ -74,6 +84,7 @@ module Server =
             | Ok user ->
                 let (UserId uid) = user.Id
                 do! ctx.UserSession.LoginUser(uid.ToString(), persistent = true)
+                do! awardDailyLoginBonus user
                 return Ok user
             | Error e -> return Error e
         }
@@ -90,6 +101,7 @@ module Server =
             | Ok user ->
                 let (UserId uid) = user.Id
                 do! ctx.UserSession.LoginUser(uid.ToString(), persistent = true)
+                do! awardDailyLoginBonus user
                 return Ok user
             | Error e -> return Error e
         }
