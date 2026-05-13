@@ -30,6 +30,7 @@ module Smoke =
                     47.4979
                     19.0402
                     (Some Supermarket)
+                    None
             printfn "store inserted: %A" store
 
             let! nearby = Stores.findNearby factory 47.5 19.0 50.0

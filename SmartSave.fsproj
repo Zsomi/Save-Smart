@@ -9,6 +9,7 @@
     <Compile Include="src/Shared/Auth.fs" />
     <Compile Include="src/Shared/ApiTypes.fs" />
     <Compile Include="src/Server/Data/Migrations/M001_InitialSchema.fs" />
+    <Compile Include="src/Server/Data/Migrations/M002_StoreOwnership.fs" />
     <Compile Include="src/Server/Data/Database.fs" />
     <Compile Include="src/Server/Data/Repositories/Users.fs" />
     <Compile Include="src/Server/Data/Repositories/Stores.fs" />

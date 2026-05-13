@@ -16,6 +16,7 @@ module Stores =
           Latitude: float
           Longitude: float
           Type: string
+          OwnerUserId: Nullable<Guid>
           CreatedAt: DateTimeOffset }
 
     let private toDomain (row: StoreRow) : Store =
@@ -25,10 +26,13 @@ module Stores =
           Latitude = row.Latitude
           Longitude = row.Longitude
           Type = row.Type |> Option.ofObj |> Option.map StoreType.parse
+          OwnerUserId =
+              if row.OwnerUserId.HasValue then Some (UserId row.OwnerUserId.Value)
+              else None
           CreatedAt = row.CreatedAt }
 
     let private selectColumns =
-        "id, name, address, latitude, longitude, type, createdat"
+        "id, name, address, latitude, longitude, type, owneruserid, createdat"
 
     let insert
         (factory: IDbConnectionFactory)
@@ -37,15 +41,20 @@ module Stores =
         (latitude: float)
         (longitude: float)
         (storeType: StoreType option)
+        (ownerUserId: UserId option)
         : Task<Store> =
         task {
             use conn = factory.Create()
             let sql =
                 $"""
-                INSERT INTO stores (name, address, latitude, longitude, type)
-                VALUES (@Name, @Address, @Latitude, @Longitude, @Type)
+                INSERT INTO stores (name, address, latitude, longitude, type, owneruserid)
+                VALUES (@Name, @Address, @Latitude, @Longitude, @Type, @OwnerUserId)
                 RETURNING {selectColumns}
                 """
+            let ownerGuid =
+                match ownerUserId with
+                | Some (UserId g) -> Nullable g
+                | None -> Nullable()
             let! row =
                 conn.QuerySingleAsync<StoreRow>(
                     sql,
@@ -56,9 +65,55 @@ module Stores =
                        Type =
                            storeType
                            |> Option.map StoreType.toString
-                           |> Option.toObj |}
+                           |> Option.toObj
+                       OwnerUserId = ownerGuid |}
                 )
             return toDomain row
+        }
+
+    let update
+        (factory: IDbConnectionFactory)
+        (StoreId id)
+        (name: string)
+        (address: string)
+        (latitude: float)
+        (longitude: float)
+        (storeType: StoreType option)
+        : Task<Store option> =
+        task {
+            use conn = factory.Create()
+            let sql =
+                $"""
+                UPDATE stores
+                SET name = @Name,
+                    address = @Address,
+                    latitude = @Latitude,
+                    longitude = @Longitude,
+                    type = @Type
+                WHERE id = @Id
+                RETURNING {selectColumns}
+                """
+            let! rows =
+                conn.QueryAsync<StoreRow>(
+                    sql,
+                    {| Id = id
+                       Name = name
+                       Address = address
+                       Latitude = latitude
+                       Longitude = longitude
+                       Type =
+                           storeType
+                           |> Option.map StoreType.toString
+                           |> Option.toObj |}
+                )
+            return rows |> Seq.tryHead |> Option.map toDomain
+        }
+
+    let delete (factory: IDbConnectionFactory) (StoreId id) : Task<int> =
+        task {
+            use conn = factory.Create()
+            let sql = "DELETE FROM stores WHERE id = @Id"
+            return! conn.ExecuteAsync(sql, {| Id = id |})
         }
 
     let findById (factory: IDbConnectionFactory) (StoreId id) : Task<Store option> =

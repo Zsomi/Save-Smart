@@ -15,6 +15,7 @@ module Users =
           PasswordHash: string
           Username: string
           GamificationPoints: int
+          IsAdmin: bool
           CreatedAt: DateTimeOffset }
 
     let private toDomain (row: UserRow) : User =
@@ -22,10 +23,11 @@ module Users =
           Email = row.Email
           Username = row.Username
           GamificationPoints = row.GamificationPoints
+          IsAdmin = row.IsAdmin
           CreatedAt = row.CreatedAt }
 
     let private selectColumns =
-        "id, email, passwordhash, username, gamificationpoints, createdat"
+        "id, email, passwordhash, username, gamificationpoints, isadmin, createdat"
 
     let insert
         (factory: IDbConnectionFactory)

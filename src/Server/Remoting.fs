@@ -167,6 +167,98 @@ module Server =
             return! PriceEntries.listForStore factory id |> Async.AwaitTask
         }
 
+    let private validateStoreFields
+        (name: string)
+        (address: string)
+        (latitude: float)
+        (longitude: float)
+        : Result<unit, ApiError> =
+        if String.IsNullOrWhiteSpace name then
+            Error (ValidationFailed "Store name is required.")
+        elif String.IsNullOrWhiteSpace address then
+            Error (ValidationFailed "Store address is required.")
+        elif latitude < -90.0 || latitude > 90.0 then
+            Error (ValidationFailed "Latitude must be between -90 and 90.")
+        elif longitude < -180.0 || longitude > 180.0 then
+            Error (ValidationFailed "Longitude must be between -180 and 180.")
+        else
+            Ok ()
+
+    let private canMutateStore (user: User) (store: Store) =
+        user.IsAdmin
+        || (match store.OwnerUserId with
+            | Some owner -> owner = user.Id
+            | None -> false)
+
+    [<Rpc>]
+    let StoreCreate (req: CreateStoreRequest) : Async<Result<Store, ApiError>> =
+        withUser (fun user ->
+            async {
+                match validateStoreFields req.Name req.Address req.Latitude req.Longitude with
+                | Error e -> return Error e
+                | Ok () ->
+                    let factory = ServerServices.dbFactory ()
+                    let! created =
+                        Stores.insert
+                            factory
+                            (req.Name.Trim())
+                            (req.Address.Trim())
+                            req.Latitude
+                            req.Longitude
+                            req.Type
+                            (Some user.Id)
+                        |> Async.AwaitTask
+                    return Ok created
+            })
+
+    [<Rpc>]
+    let StoreUpdate (req: UpdateStoreRequest) : Async<Result<Store, ApiError>> =
+        withUser (fun user ->
+            async {
+                match validateStoreFields req.Name req.Address req.Latitude req.Longitude with
+                | Error e -> return Error e
+                | Ok () ->
+                    let factory = ServerServices.dbFactory ()
+                    let! existing = Stores.findById factory req.Id |> Async.AwaitTask
+                    match existing with
+                    | None -> return Error (NotFound "store")
+                    | Some store when not (canMutateStore user store) ->
+                        return Error (ValidationFailed "You do not have permission to modify this store.")
+                    | Some _ ->
+                        let! updated =
+                            Stores.update
+                                factory
+                                req.Id
+                                (req.Name.Trim())
+                                (req.Address.Trim())
+                                req.Latitude
+                                req.Longitude
+                                req.Type
+                            |> Async.AwaitTask
+                        match updated with
+                        | Some s -> return Ok s
+                        | None -> return Error (NotFound "store")
+            })
+
+    [<Rpc>]
+    let StoreDelete (id: StoreId) : Async<Result<unit, ApiError>> =
+        withUser (fun user ->
+            async {
+                let factory = ServerServices.dbFactory ()
+                let! existing = Stores.findById factory id |> Async.AwaitTask
+                match existing with
+                | None -> return Error (NotFound "store")
+                | Some store when not (canMutateStore user store) ->
+                    return Error (ValidationFailed "You do not have permission to delete this store.")
+                | Some _ ->
+                    try
+                        let! _ = Stores.delete factory id |> Async.AwaitTask
+                        return Ok ()
+                    with
+                    | :? Npgsql.PostgresException as ex when ex.SqlState = "23503" ->
+                        return Error (Conflict "Cannot delete a store that still has price entries.")
+            })
+
     [<Rpc>]
     let ProductSearch (query: string) : Async<Product list> =
         async {

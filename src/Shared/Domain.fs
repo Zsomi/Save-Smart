@@ -19,6 +19,7 @@ module Domain =
         Email: string
         Username: string
         GamificationPoints: int
+        IsAdmin: bool
         CreatedAt: DateTimeOffset
     }
 
@@ -51,6 +52,7 @@ module Domain =
         Latitude: float
         Longitude: float
         Type: StoreType option
+        OwnerUserId: UserId option
         CreatedAt: DateTimeOffset
     }
 
